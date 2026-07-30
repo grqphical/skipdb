@@ -14,20 +14,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update dependencies
-        uses: apt-get update -y
+      - name: Install build tools
+        run: |
+          apt-get update
+          apt-get install -y cmake ninja-build build-essential
 
-      - name: Install compiler and CMake
-        run: apt-get install build-essential cmake
+      - name: Cache gtest
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: ${{ runner.os }}-gtest-v1.15.2
 
-      - name: Generate build files
-        run: cmake -B build -S .
-      
-      - name: Compile project
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -G Ninja
+          -DBUILD_TESTS=ON
+
+      - name: Build
         run: cmake --build build
 
       - name: Run tests
-        run: ./build/skipdb_tests
+        working-directory: build
+        run: ./skipdb_tests
