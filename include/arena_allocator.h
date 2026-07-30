@@ -10,7 +10,7 @@ extern "C" {
 #include <stdlib.h>
 
 typedef struct {
-  void *head;
+  char *head;
   size_t size;
   size_t offset;
 } ArenaAllocator;

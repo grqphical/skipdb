@@ -24,6 +24,14 @@ TEST(ArenaAllocatorTests, TestAllocateBeyondSize) {
   ASSERT_EQ(_arena_allocator.size, 3072);
 }
 
+TEST(ArenaAllocatorTests, TestOffsetToAddress) {
+  size_t offset = arena_allocate(1);
+  uint32_t *ptr = (uint32_t *)ARENA_ADDR(offset);
+  ASSERT_EQ(ptr, (uint32_t *)(_arena_allocator.head + offset));
+  *ptr = 57;
+  ASSERT_EQ(*(uint32_t *)(_arena_allocator.head + offset), 57);
+}
+
 TEST(ArenaAllocatorTests, TestDeInit) {
   arena_deinit();
   ASSERT_EQ(_arena_created, 0);

@@ -50,7 +50,7 @@ size_t arena_allocate(size_t size) {
     size_t new_size = max(_arena_allocator.size * (1 + extra_blocks),
                           _arena_allocator.size * 2);
 
-    void *new_head = realloc(_arena_allocator.head, new_size);
+    char *new_head = realloc(_arena_allocator.head, new_size);
     if (new_head == NULL) {
       perror("realloc()");
       exit(1);
