@@ -1,0 +1,30 @@
+name: Tests
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install compiler and CMake
+        run: apt-get install build-essential cmake
+
+      - name: Generate build files
+        run: cmake -B build -S .
+      
+      - name: Compile project
+        run: cmake --build build
+
+      - name: Run tests
+        run: ./build/skipdb_tests
