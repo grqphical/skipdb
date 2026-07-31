@@ -1,7 +1,6 @@
 #include "arena_allocator.h"
 
-uint8_t _arena_created = 0;
-ArenaAllocator _arena_allocator;
+#define __default_new_block_size 1024
 
 size_t max(size_t a, size_t b) {
   if (a > b)
@@ -10,57 +9,46 @@ size_t max(size_t a, size_t b) {
     return b;
 }
 
-void arena_init(size_t size) {
-  _arena_allocator.size = size;
-  _arena_allocator.offset = 0;
-
-  void *head = malloc(size);
-  if (head == NULL) {
-    perror("malloc()");
+ArenaAllocator *arena_init(size_t size) {
+  ArenaAllocator *arena = malloc(sizeof(ArenaAllocator));
+  if (arena == NULL) {
+    perror("arena: malloc()");
     exit(1);
   }
-  _arena_allocator.head = head;
-  _arena_created = 1;
+  arena->size = size;
+  arena->offset = 0;
+  arena->next = NULL;
+
+  char *ptr = (char *)calloc(1, size);
+  arena->head = ptr;
+  return arena;
 }
 
-void arena_deinit(void) {
-  if (!_arena_created) {
-    return;
+void arena_free(ArenaAllocator *arena) {
+  ArenaAllocator *current_arena = arena;
+  while (current_arena != NULL) {
+    ArenaAllocator *next_arena = current_arena->next;
+    free(current_arena->head);
+    free(current_arena);
+    current_arena = next_arena;
   }
-
-  free(_arena_allocator.head);
-  _arena_created = 0;
-  _arena_allocator.head = NULL;
 }
 
-size_t arena_allocate(size_t size) {
-  if (!_arena_created) {
-    printf("error: arena not initialized");
-    exit(1);
+char *arena_allocate(ArenaAllocator *arena, size_t size) {
+  ArenaAllocator *tail = arena;
+  while (tail->next != NULL) {
+    tail = tail->next;
   }
 
-  // reallocate space if we don't have enough
-  size_t remaining = _arena_allocator.size - _arena_allocator.offset;
+  size_t remaining = tail->size - tail->offset;
   if (size > remaining) {
-    size_t deficit =
-        size - remaining; // extra bytes needed beyond current capacity
-
-    size_t extra_blocks =
-        (deficit + _arena_allocator.size - 1) / _arena_allocator.size; // ceil
-    size_t new_size = max(_arena_allocator.size * (1 + extra_blocks),
-                          _arena_allocator.size * 2);
-
-    char *new_head = realloc(_arena_allocator.head, new_size);
-    if (new_head == NULL) {
-      perror("realloc()");
-      exit(1);
-    }
-    _arena_allocator.head = new_head;
-    _arena_allocator.size = new_size;
+    size_t new_block_size = max(size, __default_new_block_size);
+    ArenaAllocator *new_arena = arena_init(new_block_size);
+    tail->next = new_arena;
+    tail = new_arena;
   }
 
-  size_t offest_to_return = _arena_allocator.offset;
-  _arena_allocator.offset += size;
-
-  return offest_to_return;
+  char *ptr_to_return = (char *)(tail->head + tail->offset);
+  tail->offset += size;
+  return ptr_to_return;
 }

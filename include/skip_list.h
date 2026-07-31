@@ -11,6 +11,7 @@ extern "C" {
 #include "arena_allocator.h"
 
 #define MAX_LEVELS 8
+#define DEFAULT_ALLOCATION_SIZE 1024
 
 typedef struct sl_node {
   const char *key;
@@ -20,6 +21,7 @@ typedef struct sl_node {
 } SkipListNode;
 
 typedef struct {
+  ArenaAllocator *allocator;
   SkipListNode *head;
 } SkipList;
 
@@ -27,6 +29,7 @@ SkipList *sl_init(void);
 SkipListNode *sl_search(SkipList *sl, const char *key, size_t key_length);
 SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length);
 void sl_delete(SkipList *sl, const char *key, size_t key_length);
+void sl_free(SkipList *sl);
 
 #ifdef __cplusplus
 }

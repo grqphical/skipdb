@@ -2,8 +2,6 @@
 #include "arena_allocator.h"
 #include <string.h>
 
-#define __default_arena_size 2048
-
 /* Total order over (key, key_length) pairs: lexicographic on bytes,
  * with a shorter-but-equal-prefix key sorting before the longer one. */
 static int sl_compare(const char *key_a, size_t len_a, const char *key_b,
@@ -28,13 +26,15 @@ static int sl_random_level(void) {
 }
 
 SkipList *sl_init(void) {
-  arena_init(__default_arena_size);
 
-  SkipList *sl = ARENA_ADDR(arena_allocate(sizeof(SkipList)));
-  sl->head = ARENA_ADDR(arena_allocate(sizeof(SkipListNode)));
+  SkipList *sl = (SkipList *)malloc(sizeof(SkipList));
+  ArenaAllocator *arena = arena_init(DEFAULT_ALLOCATION_SIZE);
+  sl->head = (SkipListNode *)arena_allocate(arena, sizeof(SkipListNode));
 
   sl->head->key = NULL;
   sl->head->key_length = 0;
+
+  sl->allocator = arena;
   return sl;
 }
 
@@ -79,7 +79,8 @@ SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length) {
     return node;
   }
 
-  SkipListNode *new_node = ARENA_ADDR(arena_allocate(sizeof(SkipListNode)));
+  SkipListNode *new_node =
+      (SkipListNode *)arena_allocate(sl->allocator, sizeof(SkipListNode));
   if (new_node == NULL)
     return NULL;
 
@@ -115,4 +116,12 @@ void sl_delete(SkipList *sl, const char *key, size_t key_length) {
       sl_compare(node->key, node->key_length, key, key_length) == 0) {
     node->dead = true;
   }
+}
+
+void sl_free(SkipList *sl) {
+  if (sl == NULL)
+    return;
+
+  arena_free(sl->allocator);
+  free(sl);
 }

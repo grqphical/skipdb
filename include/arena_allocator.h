@@ -9,23 +9,22 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct {
+typedef struct arena_allocator {
   char *head;
   size_t size;
   size_t offset;
+  struct arena_allocator *next;
 } ArenaAllocator;
 
-extern uint8_t _arena_created;
-extern ArenaAllocator _arena_allocator;
+#define ARENA_OFFSET(arena, addr) ((size_t)(addr - arena->head))
 
-#define ARENA_ADDR(offset) ((void *)(_arena_allocator.head + offset))
-
-// initializes the arena with a given size of memory
-void arena_init(size_t size);
+// initializes an arena with the size the arena should allocate
+ArenaAllocator *arena_init(size_t size);
 // frees all memory used by the arena
-void arena_deinit(void);
-// allocates memory in the arena, returning the numerical offset
-size_t arena_allocate(size_t size);
+void arena_free(ArenaAllocator *arena);
+// allocates memory in the arena, returning the pointer where the memory will be
+// stored
+char *arena_allocate(ArenaAllocator *, size_t size);
 
 #ifdef __cplusplus
 }
