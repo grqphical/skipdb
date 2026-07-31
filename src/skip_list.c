@@ -56,7 +56,8 @@ SkipListNode *sl_search(SkipList *sl, const char *key, size_t key_length) {
   return NULL;
 }
 
-SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length) {
+SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length,
+                        char *value_ptr, size_t value_len) {
   SkipListNode *update[MAX_LEVELS];
   SkipListNode *node = sl->head;
 
@@ -75,6 +76,8 @@ SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length) {
       sl_compare(node->key, node->key_length, key, key_length) == 0) {
     node->key = key;
     node->key_length = key_length;
+    node->value_ptr = value_ptr;
+    node->value_len = value_len;
     node->dead = false;
     return node;
   }
@@ -86,6 +89,8 @@ SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length) {
 
   new_node->key = key;
   new_node->key_length = key_length;
+  new_node->value_ptr = value_ptr;
+  new_node->value_len = value_len;
   new_node->dead = false;
   for (int i = 0; i < MAX_LEVELS; i++) {
     new_node->next[i] = NULL;

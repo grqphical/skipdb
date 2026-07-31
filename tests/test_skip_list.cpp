@@ -11,8 +11,8 @@ TEST(SkipListTests, TestSkipListInsertionAndSearch) {
   SkipList *sl = sl_init();
   ASSERT_NE((size_t)sl, NULL);
 
-  sl_insert(sl, "foo", 3);
-  sl_insert(sl, "bar", 3);
+  sl_insert(sl, "foo", 3, NULL, 0);
+  sl_insert(sl, "bar", 3, NULL, 0);
 
   SkipListNode *foo = sl_search(sl, "foo", 3);
   ASSERT_NE((size_t)foo, 0);
@@ -34,8 +34,8 @@ TEST(SkipListTests, TestSkipListDeletion) {
   SkipList *sl = sl_init();
   ASSERT_NE((size_t)sl, NULL);
 
-  sl_insert(sl, "foo", 3);
-  sl_insert(sl, "bar", 3);
+  sl_insert(sl, "foo", 3, NULL, 0);
+  sl_insert(sl, "bar", 3, NULL, 0);
 
   sl_delete(sl, "bar", 3);
 

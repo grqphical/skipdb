@@ -16,6 +16,8 @@ extern "C" {
 typedef struct sl_node {
   const char *key;
   size_t key_length;
+  char *value_ptr;
+  size_t value_len;
   struct sl_node *next[MAX_LEVELS];
   bool dead;
 } SkipListNode;
@@ -27,7 +29,8 @@ typedef struct {
 
 SkipList *sl_init(void);
 SkipListNode *sl_search(SkipList *sl, const char *key, size_t key_length);
-SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length);
+SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length,
+                        char *value_ptr, size_t value_len);
 void sl_delete(SkipList *sl, const char *key, size_t key_length);
 void sl_free(SkipList *sl);
 
