@@ -24,6 +24,8 @@ skipdb_instance *skipdb_init(const char *filepath) {
 }
 
 void skipdb_destroy(skipdb_instance *db) {
+  if (db == NULL)
+    return;
   sl_free(db->sl);
   arena_free(db->value_allocator);
 

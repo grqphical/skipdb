@@ -9,6 +9,7 @@ trust it to run nuclear reactors or anything important (yet).
 - Key expiry
 - Lock-free concurrent reading and writing
 - File persistence
+- Simple CLI for testing (code contained in `cli/`, seperate from library)
 
 ## Pre-Requisites
 The library itself has no external dependencies.
