@@ -3,12 +3,26 @@
 #include "expiry_record.h"
 #include "skipdb_internal.h"
 #include "uthash.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 #define __in_memory_name "<memory>"
 #define __default_value_store_size 1024
+
+enum skipdb_error_t skipdb_err = NONE;
+
+void print_skipdb_error(void) {
+  switch (skipdb_err) {
+  case NONE:
+    break;
+  case ALLOCATION_ERR:
+    fprintf(stderr, "memory allocation failure\n");
+    break;
+  }
+  skipdb_err = NONE;
+}
 
 skipdb_instance *skipdb_init(const char *filepath) {
   if (memcmp(filepath, __in_memory_name, 8) != 0) {
@@ -17,6 +31,11 @@ skipdb_instance *skipdb_init(const char *filepath) {
     return NULL;
   }
   skipdb_instance *db = malloc(sizeof(skipdb_instance));
+  if (db == NULL) {
+    skipdb_err = ALLOCATION_ERR;
+    return NULL;
+  }
+
   db->sl = sl_init();
   db->value_allocator = arena_init(__default_value_store_size);
   db->expiry_table = NULL;
@@ -41,7 +60,7 @@ void skipdb_destroy(skipdb_instance *db) {
 }
 
 void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
-                   size_t expiry) {
+                   uint32_t expiry) {
   size_t key_length = strlen(key);
   size_t value_length = strlen(value);
 
@@ -53,7 +72,7 @@ void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
   if (expiry > 0) {
     ExpiryRecord *record = malloc(sizeof(ExpiryRecord));
     if (record == NULL) {
-      perror("failed to allocate expiry record");
+      skipdb_err = ALLOCATION_ERR;
       return;
     }
     record->key = malloc(key_length);
@@ -81,8 +100,10 @@ char *skipdb_lookup(skipdb_instance *db, const char *key) {
   }
 
   SkipListNode *node = sl_search(db->sl, key, key_len);
-  if (node == NULL)
+  if (node == NULL) {
+    skipdb_err = ALLOCATION_ERR;
     return NULL;
+  }
 
   char *value_clone = malloc(sizeof(node->value_len));
   strcpy(value_clone, node->value_ptr);

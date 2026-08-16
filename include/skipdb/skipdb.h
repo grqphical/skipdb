@@ -2,12 +2,20 @@
 #define SKIPDB_H
 #include "skipdb/export.h"
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define CHECK_SKIPDB_ERROR (skipdb_err != 0)
+
+enum skipdb_error_t { NONE, ALLOCATION_ERR };
+
 typedef struct skipdb skipdb_instance;
+
+// Prints an error message related to the last error reported by the library
+SKIPDB_EXPORT void print_skipdb_error(void);
 
 // creates a new SkipDB instance, where filepath is the file to persist the
 // database to for an in-memory only database, set filepath to '<memory>'
@@ -19,7 +27,7 @@ SKIPDB_EXPORT void skipdb_destroy(skipdb_instance *db);
 // overwrites it. If expiry is non-zero, they key will be removed from the
 // database after the given number of seconds
 SKIPDB_EXPORT void skipdb_insert(skipdb_instance *db, const char *key,
-                                 const char *value, size_t expiry);
+                                 const char *value, uint32_t expiry);
 // searches for a value in the database, if none is found the function returns
 // NULL. NOTE: the memory returned by this function must be freed by the user,
 // the user owns the memory.
