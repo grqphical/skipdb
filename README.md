@@ -27,4 +27,4 @@ cmake --build build
 **NOTE: If you want to build a shared library instead, add the `-DBUILD_SHARED_LIBS=ON` flag to step 2. The output file will be in the same place**
 
 ## License
-`skipdb` is licensed under the MIT License. `skipdb` uses [uthash](https://github.com/troydhanson) which is licensed under the [revised BSD license](https://troydhanson.github.io/uthash/license.html)
+`skipdb` is licensed under the MIT License. `skipdb` uses [uthash](https://github.com/troydhanson/uthash) which is licensed under the [revised BSD license](https://troydhanson.github.io/uthash/license.html)
