@@ -1,6 +1,7 @@
 #ifndef SKIPDB_H
 #define SKIPDB_H
 #include "arena_allocator.h"
+#include "expiry_record.h"
 #include "skip_list.h"
 
 #ifdef __cplusplus
@@ -9,6 +10,7 @@ extern "C" {
 
 typedef struct {
   SkipList *sl;
+  ExpiryRecord *expiry_table;
   ArenaAllocator *value_allocator;
 } skipdb_instance;
 
@@ -19,8 +21,10 @@ skipdb_instance *skipdb_init(const char *filepath);
 // is set to persist)
 void skipdb_destroy(skipdb_instance *db);
 // inserts a value at the given key in the database, if the key exists it simply
-// overwrites it
-void skipdb_insert(skipdb_instance *db, const char *key, const char *value);
+// overwrites it. If expiry is non-zero, they key will be removed from the
+// database after the given number of seconds
+void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
+                   size_t expiry);
 // searches for a value in the database, if none is found the function returns
 // NULL. NOTE: the memory returned by this function must be freed by the user,
 // the user owns the memory.

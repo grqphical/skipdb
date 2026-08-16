@@ -1,7 +1,10 @@
 #include "skipdb.h"
 #include "arena_allocator.h"
+#include "expiry_record.h"
+#include "uthash.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define __in_memory_name "<memory>"
 #define __default_value_store_size 1024
@@ -15,6 +18,7 @@ skipdb_instance *skipdb_init(const char *filepath) {
   skipdb_instance *db = malloc(sizeof(skipdb_instance));
   db->sl = sl_init();
   db->value_allocator = arena_init(__default_value_store_size);
+  db->expiry_table = NULL;
 
   return db;
 }
@@ -22,10 +26,19 @@ skipdb_instance *skipdb_init(const char *filepath) {
 void skipdb_destroy(skipdb_instance *db) {
   sl_free(db->sl);
   arena_free(db->value_allocator);
+
+  ExpiryRecord *current_record;
+  ExpiryRecord *tmp;
+
+  HASH_ITER(hh, db->expiry_table, current_record, tmp) {
+    HASH_DEL(db->expiry_table, current_record);
+    free(current_record);
+  }
   free(db);
 }
 
-void skipdb_insert(skipdb_instance *db, const char *key, const char *value) {
+void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
+                   size_t expiry) {
   size_t key_length = strlen(key);
   size_t value_length = strlen(value);
 
@@ -33,10 +46,37 @@ void skipdb_insert(skipdb_instance *db, const char *key, const char *value) {
   strcpy(value_clone, value);
 
   sl_insert(db->sl, key, key_length, value_clone, value_length);
+
+  if (expiry > 0) {
+    ExpiryRecord *record = malloc(sizeof(ExpiryRecord));
+    if (record == NULL) {
+      perror("failed to allocate expiry record");
+      return;
+    }
+    record->key = malloc(key_length);
+    strcpy(record->key, key);
+
+    size_t current_timestamp = time(NULL);
+    record->expiration_timestamp = current_timestamp + expiry;
+
+    HASH_ADD_KEYPTR(hh, db->expiry_table, key, key_length, record);
+  }
 }
 
 char *skipdb_lookup(skipdb_instance *db, const char *key) {
   size_t key_len = strlen(key);
+  ExpiryRecord *record;
+  HASH_FIND_STR(db->expiry_table, key, record);
+
+  if (record) {
+    size_t current_timestamp = time(NULL);
+    if (current_timestamp >= record->expiration_timestamp) {
+      HASH_DEL(db->expiry_table, record);
+      free(record);
+      return NULL;
+    }
+  }
+
   SkipListNode *node = sl_search(db->sl, key, key_len);
   if (node == NULL)
     return NULL;
@@ -50,4 +90,12 @@ char *skipdb_lookup(skipdb_instance *db, const char *key) {
 void skipdb_delete(skipdb_instance *db, const char *key) {
   size_t key_len = strlen(key);
   sl_delete(db->sl, key, key_len);
+
+  ExpiryRecord *record;
+  HASH_FIND_STR(db->expiry_table, key, record);
+
+  if (record) {
+    HASH_DEL(db->expiry_table, record);
+    free(record);
+  }
 }

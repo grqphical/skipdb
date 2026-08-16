@@ -8,7 +8,7 @@ A lightweight, embedded key-value database based on a skip list index.
 - File persistence
 
 ## Pre-Requisites
-The library itself has no dependencies
+The library itself has no external dependencies.
 
 However the unit tests use Google Test and the project itself uses CMake for it's build system.
 
@@ -27,4 +27,4 @@ cmake --build build
 **NOTE: If you want to build a shared library instead, add the `-DBUILD_SHARED_LIBS=ON` flag to step 2. The output file will be in the same place**
 
 ## License
-`skipdb` is licensed under the MIT License
+`skipdb` is licensed under the MIT License. `skipdb` uses [uthash](https://github.com/troydhanson) which is licensed under the [revised BSD license](https://troydhanson.github.io/uthash/license.html)
