@@ -77,3 +77,19 @@ if(BUILD_TESTS)
     include(GoogleTest)
     gtest_discover_tests(skipdb_tests)
 endif()
+
+option(BUILD_CLI "Builds the SkipDB CLI" ON)
+if (BUILD_CLI)
+    add_executable(skipdb_cli
+        cli/cli.c
+        cli/parser.c
+    )
+    target_link_libraries(skipdb_cli
+        PRIVATE
+        skipdb
+    )
+    target_include_directories(skipdb_cli
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/cli
+    )
+endif()
