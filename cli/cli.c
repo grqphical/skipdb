@@ -1,3 +1,4 @@
+#include "parser.h"
 #include "skipdb.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +64,8 @@ int main(int argc, char **argv) {
 
     if (strcmp(line, ":exit") == 0)
       break;
+
+    parse_and_run_command(db, line);
 
   } while (true);
 
