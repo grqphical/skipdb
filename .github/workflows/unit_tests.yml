@@ -19,8 +19,8 @@ jobs:
 
       - name: Install build tools
         run: |
-          apt-get update
-          apt-get install -y cmake ninja-build build-essential
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build build-essential
 
       - name: Cache gtest
         uses: actions/cache@v4
