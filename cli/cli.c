@@ -1,7 +1,9 @@
 #include "parser.h"
-#include "skipdb.h"
+#include "skipdb/skipdb.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define CLI_LINE_BUF_SIZE 1024
 char *read_line(void) {

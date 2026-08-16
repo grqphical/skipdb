@@ -1,36 +1,31 @@
 #ifndef SKIPDB_H
 #define SKIPDB_H
-#include "arena_allocator.h"
-#include "expiry_record.h"
-#include "skip_list.h"
+#include "skipdb/export.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-  SkipList *sl;
-  ExpiryRecord *expiry_table;
-  ArenaAllocator *value_allocator;
-} skipdb_instance;
+typedef struct skipdb skipdb_instance;
 
 // creates a new SkipDB instance, where filepath is the file to persist the
 // database to for an in-memory only database, set filepath to '<memory>'
-skipdb_instance *skipdb_init(const char *filepath);
+SKIPDB_EXPORT skipdb_instance *skipdb_init(const char *filepath);
 // frees all memory used by skipdb and writes all data to disk (if the database
 // is set to persist)
-void skipdb_destroy(skipdb_instance *db);
+SKIPDB_EXPORT void skipdb_destroy(skipdb_instance *db);
 // inserts a value at the given key in the database, if the key exists it simply
 // overwrites it. If expiry is non-zero, they key will be removed from the
 // database after the given number of seconds
-void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
-                   size_t expiry);
+SKIPDB_EXPORT void skipdb_insert(skipdb_instance *db, const char *key,
+                                 const char *value, size_t expiry);
 // searches for a value in the database, if none is found the function returns
 // NULL. NOTE: the memory returned by this function must be freed by the user,
 // the user owns the memory.
-char *skipdb_lookup(skipdb_instance *db, const char *key);
+SKIPDB_EXPORT char *skipdb_lookup(skipdb_instance *db, const char *key);
 // deletes a key in the database, if it doesn't exist the function is a no-op
-void skipdb_delete(skipdb_instance *db, const char *key);
+SKIPDB_EXPORT void skipdb_delete(skipdb_instance *db, const char *key);
 
 #ifdef __cplusplus
 }

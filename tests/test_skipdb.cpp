@@ -1,4 +1,4 @@
-#include "skipdb.h"
+#include "skipdb/skipdb.h"
 #include <gtest/gtest.h>
 
 TEST(SkipDBTests, TestInsertAndSearch) {

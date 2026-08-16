@@ -1,6 +1,7 @@
-#include "skipdb.h"
+#include "skipdb/skipdb.h"
 #include "arena_allocator.h"
 #include "expiry_record.h"
+#include "skipdb_internal.h"
 #include "uthash.h"
 #include <stdlib.h>
 #include <string.h>
