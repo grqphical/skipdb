@@ -1,6 +1,9 @@
 # skipdb
 A lightweight, embedded key-value database based on a skip list index.
 
+I built this mainly as a proof of concept after doing a research project on skip lists for a university class. Will this work in production systems? Yes, but I wouldn't
+trust it to run nuclear reactors or anything important (yet).
+
 ## Features
 - Key-Value Store
 - Key expiry
