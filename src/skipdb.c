@@ -13,7 +13,9 @@
 
 enum skipdb_error_t skipdb_err = NONE;
 
-void print_skipdb_error(void) {
+bool skipdb_check_error(void) { return skipdb_err != NONE; }
+
+void skipdb_print_error(void) {
   switch (skipdb_err) {
   case NONE:
     break;

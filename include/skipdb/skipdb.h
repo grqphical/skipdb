@@ -1,6 +1,7 @@
 #ifndef SKIPDB_H
 #define SKIPDB_H
 #include "skipdb/export.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -8,14 +9,15 @@
 extern "C" {
 #endif
 
-#define CHECK_SKIPDB_ERROR (skipdb_err != 0)
-
 enum skipdb_error_t { NONE, ALLOCATION_ERR };
 
 typedef struct skipdb skipdb_instance;
 
+// Checks if an error occured within the library
+SKIPDB_EXPORT bool skipdb_check_error(void);
+
 // Prints an error message related to the last error reported by the library
-SKIPDB_EXPORT void print_skipdb_error(void);
+SKIPDB_EXPORT void skipdb_print_error(void);
 
 // creates a new SkipDB instance, where filepath is the file to persist the
 // database to for an in-memory only database, set filepath to '<memory>'

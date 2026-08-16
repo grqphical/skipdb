@@ -68,6 +68,9 @@ int main(int argc, char **argv) {
       break;
 
     parse_and_run_command(db, line);
+    if (skipdb_check_error()) {
+      skipdb_print_error();
+    }
 
   } while (true);
 
