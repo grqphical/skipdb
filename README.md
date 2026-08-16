@@ -14,19 +14,55 @@ The library itself has no external dependencies.
 
 However the unit tests use Google Test and the project itself uses CMake for it's build system.
 
+Building the project requires CMake 3.28+ and a C11/C++17 compiler.
+
 ## Installation
-1. Clone this repository and `cd` into it
-2. Generate build files with CMake
-```bash
-cmake -B build -S .
+
+Add this to your `CMakeLists.txt` file
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+    skipdb
+    GIT_REPOSITORY https://github.com/grqphical/skipdb.git
+    GIT_TAG v0.1.0
+)
+FetchContent_MakeAvailable(skipdb)
+
+target_link_libraries(your_target PRIVATE SkipDB::skipdb)
 ```
-3. Compile the library and unit tests
+
+## Example Usage
+```c
+#include "skipdb/skipdb.h"
+
+int main(void) {
+    skipdb_t *db = skipdb_init("<memory>");
+
+    const char *key = "hello";
+    const char *value = "world";
+    skipdb_insert(db, key, value, 0);
+
+    const char* out = skipdb_lookup(db, key);
+
+    skipdb_destroy(db);
+    return 0;
+}
+```
+
+## Building the Project
+
 ```bash
+git clone https://github.com/grqphical/skipdb.git
+cd skipdb
+cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
-4. The library will be output to `build/libskipdb.a` (At least for Linux/Unix)
 
-**NOTE: If you want to build a shared library instead, add the `-DBUILD_SHARED_LIBS=ON` flag to step 2. The output file will be in the same place**
+By default this also builds the test suite and CLI. To build just the library:
+
+```bash
+cmake -B build -DBUILD_TESTS=OFF -DBUILD_CLI=OFF
+```
 
 ## License
 `skipdb` is licensed under the MIT License. `skipdb` uses [uthash](https://github.com/troydhanson/uthash) which is licensed under the [revised BSD license](https://troydhanson.github.io/uthash/license.html)
