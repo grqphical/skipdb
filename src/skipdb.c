@@ -26,26 +26,29 @@ void skipdb_print_error(void) {
   skipdb_err = NONE;
 }
 
-skipdb_instance *skipdb_init(const char *filepath) {
+void skipdb_open(const char *filepath, skipdb *db) {
   if (memcmp(filepath, __in_memory_name, 8) != 0) {
     // the user is not requesting an in memory database, so open the file for
     // appending
-    return NULL;
+    return;
   }
-  skipdb_instance *db = malloc(sizeof(skipdb_instance));
+
   if (db == NULL) {
-    skipdb_err = ALLOCATION_ERR;
-    return NULL;
+    db = malloc(sizeof(skipdb));
+    if (db == NULL) {
+      skipdb_err = ALLOCATION_ERR;
+      return;
+    }
   }
 
   db->sl = sl_init();
   db->value_allocator = arena_init(__default_value_store_size);
   db->expiry_table = NULL;
 
-  return db;
+  return;
 }
 
-void skipdb_destroy(skipdb_instance *db) {
+void skipdb_close(skipdb *db) {
   if (db == NULL)
     return;
   sl_free(db->sl);
@@ -58,11 +61,10 @@ void skipdb_destroy(skipdb_instance *db) {
     HASH_DEL(db->expiry_table, current_record);
     free(current_record);
   }
-  free(db);
 }
 
-void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
-                   uint32_t expiry) {
+void skipdb_set(skipdb *db, const char *key, const char *value,
+                uint32_t expiry) {
   size_t key_length = strlen(key);
   size_t value_length = strlen(value);
 
@@ -87,7 +89,7 @@ void skipdb_insert(skipdb_instance *db, const char *key, const char *value,
   }
 }
 
-char *skipdb_lookup(skipdb_instance *db, const char *key) {
+char *skipdb_get(skipdb *db, const char *key) {
   size_t key_len = strlen(key);
   ExpiryRecord *record;
   HASH_FIND_STR(db->expiry_table, key, record);
@@ -113,7 +115,7 @@ char *skipdb_lookup(skipdb_instance *db, const char *key) {
   return value_clone;
 }
 
-void skipdb_delete(skipdb_instance *db, const char *key) {
+void skipdb_delete(skipdb *db, const char *key) {
   size_t key_len = strlen(key);
   sl_delete(db->sl, key, key_len);
 

@@ -28,7 +28,7 @@ static int is_positive_integer(const char *s) {
   return strtol(s, NULL, 10) > 0;
 }
 
-void parse_and_run_command(skipdb_instance *db, char *line) {
+void parse_and_run_command(skipdb *db, char *line) {
   int len = strlen(line);
   if (len < 3) {
     printf("error: unknown command\n");
@@ -125,7 +125,7 @@ void parse_and_run_command(skipdb_instance *db, char *line) {
       timestamp = strtol(ts_str, NULL, 0);
     }
 
-    skipdb_insert(db, key, value, timestamp);
+    skipdb_set(db, key, value, timestamp);
 
   } else if (memcmp(line, "GET", 3) == 0) {
     char *rest = skip_spaces(line + 3);
@@ -146,7 +146,7 @@ void parse_and_run_command(skipdb_instance *db, char *line) {
     }
     *key_end = '\0';
 
-    char *value = skipdb_lookup(db, key);
+    char *value = skipdb_get(db, key);
     if (value == NULL) {
       printf("no value with given key found\n");
       return;

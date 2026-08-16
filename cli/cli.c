@@ -41,9 +41,13 @@ char *read_line(void) {
 }
 
 int main(int argc, char **argv) {
-  skipdb_instance *db;
+  skipdb *db;
   if (argc == 1) {
-    db = skipdb_init("<memory>");
+    skipdb_open("<memory>", db);
+    if (skipdb_check_error()) {
+      skipdb_print_error();
+    }
+
   } else if (argc == 2) {
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
       printf("usage: skipdb_cli <filename>\n");
@@ -74,7 +78,7 @@ int main(int argc, char **argv) {
 
   } while (true);
 
-  skipdb_destroy(db);
+  skipdb_close(db);
 
   return 0;
 }
