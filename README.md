@@ -36,7 +36,7 @@ target_link_libraries(your_target PRIVATE SkipDB::skipdb)
 #include "skipdb/skipdb.h"
 
 int main(void) {
-    skipdb_t *db = skipdb_init("<memory>");
+    skipdb_instance *db = skipdb_init("<memory>");
 
     const char *key = "hello";
     const char *value = "world";
