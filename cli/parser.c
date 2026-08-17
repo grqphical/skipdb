@@ -152,6 +152,7 @@ void parse_and_run_command(skipdb *db, char *line) {
       return;
     } else {
       printf("\"%s\"\n", value);
+      free(value);
     }
 
   } else if (memcmp(line, "DEL", 3) == 0) {

@@ -68,17 +68,22 @@ int main(int argc, char **argv) {
     printf("skipdb> ");
     line = read_line();
 
-    if (strcmp(line, ":exit") == 0)
+    if (strcmp(line, ":exit") == 0) {
+      free(line);
       break;
+    }
 
     parse_and_run_command(db, line);
     if (skipdb_check_error()) {
       skipdb_print_error();
     }
 
+    free(line);
+
   } while (true);
 
   skipdb_close(db);
+  free(db);
 
   return 0;
 }
