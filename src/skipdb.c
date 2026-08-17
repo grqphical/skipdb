@@ -93,7 +93,7 @@ void skipdb_set(skipdb *db, const char *key, const char *value,
     size_t current_timestamp = time(NULL);
     record->expiration_timestamp = current_timestamp + expiry;
 
-    HASH_ADD_KEYPTR(hh, db->expiry_table, key, key_length, record);
+    HASH_ADD_KEYPTR(hh, db->expiry_table, record->key, key_length, record);
   }
 }
 
