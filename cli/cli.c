@@ -43,7 +43,7 @@ char *read_line(void) {
 int main(int argc, char **argv) {
   skipdb *db;
   if (argc == 1) {
-    skipdb_open("<memory>", db);
+    skipdb_open("<memory>", &db);
     if (skipdb_check_error()) {
       skipdb_print_error();
     }

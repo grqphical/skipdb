@@ -21,7 +21,7 @@ SKIPDB_EXPORT void skipdb_print_error(void);
 
 // creates a new SkipDB instance, where filepath is the file to persist the
 // database to for an in-memory only database, set filepath to '<memory>'
-SKIPDB_EXPORT void skipdb_open(const char *filepath, skipdb *db);
+SKIPDB_EXPORT void skipdb_open(const char *filepath, skipdb **db);
 // frees all memory used by skipdb and writes all data to disk (if the database
 // is set to persist)
 SKIPDB_EXPORT void skipdb_close(skipdb *db);

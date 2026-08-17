@@ -20,6 +20,8 @@ TEST(ArenaAllocatorTests, TestAllocate) {
   ASSERT_NE((size_t)ptr, NULL);
   ASSERT_EQ(*ptr, 576);
   ASSERT_EQ(ARENA_OFFSET(arena, (char *)ptr), 0);
+
+  arena_free(arena);
 }
 
 TEST(ArenaAllocatorTests, TestAllocateBeyondSize) {

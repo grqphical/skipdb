@@ -28,13 +28,31 @@ static int sl_random_level(void) {
 SkipList *sl_init(void) {
 
   SkipList *sl = (SkipList *)malloc(sizeof(SkipList));
+  if (sl == NULL)
+    return NULL;
   ArenaAllocator *arena = arena_init(DEFAULT_ALLOCATION_SIZE);
+  if (arena == NULL) {
+    free(sl);
+    return NULL;
+  }
   sl->head = (SkipListNode *)arena_allocate(arena, sizeof(SkipListNode));
+  if (sl->head == NULL) {
+    arena_free(arena);
+    free(sl);
+    return NULL;
+  }
 
   sl->head->key = NULL;
   sl->head->key_length = 0;
-
+  sl->head->value_ptr = NULL;
+  sl->head->value_len = 0;
+  sl->head->dead = false;
+  for (int i = 0; i < MAX_LEVELS; i++) {
+    sl->head->next[i] = NULL;
+  }
   sl->allocator = arena;
+  return sl;
+
   return sl;
 }
 

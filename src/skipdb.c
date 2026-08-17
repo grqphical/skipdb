@@ -26,24 +26,24 @@ void skipdb_print_error(void) {
   skipdb_err = NONE;
 }
 
-void skipdb_open(const char *filepath, skipdb *db) {
-  if (memcmp(filepath, __in_memory_name, 8) != 0) {
+void skipdb_open(const char *filepath, skipdb **db) {
+  if (filepath != NULL && strcmp(filepath, __in_memory_name) != 0) {
     // the user is not requesting an in memory database, so open the file for
     // appending
     return;
   }
 
-  if (db == NULL) {
-    db = malloc(sizeof(skipdb));
-    if (db == NULL) {
+  if (*db == NULL) {
+    *db = malloc(sizeof(skipdb));
+    if (*db == NULL) {
       skipdb_err = ALLOCATION_ERR;
       return;
     }
   }
 
-  db->sl = sl_init();
-  db->value_allocator = arena_init(__default_value_store_size);
-  db->expiry_table = NULL;
+  (*db)->sl = sl_init();
+  (*db)->value_allocator = arena_init(__default_value_store_size);
+  (*db)->expiry_table = NULL;
 
   return;
 }
@@ -59,6 +59,7 @@ void skipdb_close(skipdb *db) {
 
   HASH_ITER(hh, db->expiry_table, current_record, tmp) {
     HASH_DEL(db->expiry_table, current_record);
+    free(current_record->key);
     free(current_record);
   }
 }
@@ -73,13 +74,21 @@ void skipdb_set(skipdb *db, const char *key, const char *value,
 
   sl_insert(db->sl, key, key_length, value_clone, value_length);
 
+  ExpiryRecord *existing;
+  HASH_FIND(hh, db->expiry_table, key, key_length, existing);
+  if (existing) {
+    HASH_DEL(db->expiry_table, existing);
+    free(existing->key);
+    free(existing);
+  }
+
   if (expiry > 0) {
     ExpiryRecord *record = malloc(sizeof(ExpiryRecord));
     if (record == NULL) {
       skipdb_err = ALLOCATION_ERR;
       return;
     }
-    record->key = malloc(key_length);
+    record->key = malloc(key_length + 1);
     strcpy(record->key, key);
 
     size_t current_timestamp = time(NULL);
@@ -98,6 +107,7 @@ char *skipdb_get(skipdb *db, const char *key) {
     size_t current_timestamp = time(NULL);
     if (current_timestamp >= record->expiration_timestamp) {
       HASH_DEL(db->expiry_table, record);
+      free(record->key);
       free(record);
       return NULL;
     }
@@ -109,7 +119,7 @@ char *skipdb_get(skipdb *db, const char *key) {
     return NULL;
   }
 
-  char *value_clone = malloc(sizeof(node->value_len));
+  char *value_clone = malloc(node->value_len + 1);
   strcpy(value_clone, node->value_ptr);
 
   return value_clone;
@@ -124,6 +134,7 @@ void skipdb_delete(skipdb *db, const char *key) {
 
   if (record) {
     HASH_DEL(db->expiry_table, record);
+    free(record->key);
     free(record);
   }
 }
