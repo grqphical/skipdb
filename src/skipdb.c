@@ -115,10 +115,8 @@ char *skipdb_get(skipdb *db, const char *key) {
 
   SkipListNode *node = sl_search(db->sl, key, key_len);
   if (node == NULL) {
-    skipdb_err = ALLOCATION_ERR;
     return NULL;
   }
-
   char *value_clone = malloc(node->value_len + 1);
   strcpy(value_clone, node->value_ptr);
 

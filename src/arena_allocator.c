@@ -1,4 +1,6 @@
 #include "arena_allocator.h"
+#include <stdalign.h>
+#include <stddef.h>
 
 #define __default_new_block_size 1024
 
@@ -40,15 +42,21 @@ char *arena_allocate(ArenaAllocator *arena, size_t size) {
     tail = tail->next;
   }
 
-  size_t remaining = tail->size - tail->offset;
+  // Align the current offset up to alignof(max_align_t) before allocating.
+  size_t align = alignof(max_align_t);
+  size_t aligned_offset = (tail->offset + (align - 1)) & ~(align - 1);
+
+  size_t remaining =
+      (tail->size > aligned_offset) ? tail->size - aligned_offset : 0;
   if (size > remaining) {
     size_t new_block_size = max(size, __default_new_block_size);
     ArenaAllocator *new_arena = arena_init(new_block_size);
     tail->next = new_arena;
     tail = new_arena;
+    aligned_offset = 0; // fresh block, offset starts at 0 (already aligned)
   }
 
-  char *ptr_to_return = (char *)(tail->head + tail->offset);
-  tail->offset += size;
+  char *ptr_to_return = (char *)(tail->head + aligned_offset);
+  tail->offset = aligned_offset + size;
   return ptr_to_return;
 }

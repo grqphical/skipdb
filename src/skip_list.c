@@ -52,8 +52,6 @@ SkipList *sl_init(void) {
   }
   sl->allocator = arena;
   return sl;
-
-  return sl;
 }
 
 SkipListNode *sl_search(SkipList *sl, const char *key, size_t key_length) {
@@ -92,8 +90,6 @@ SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length,
 
   if (node != NULL &&
       sl_compare(node->key, node->key_length, key, key_length) == 0) {
-    node->key = key;
-    node->key_length = key_length;
     node->value_ptr = value_ptr;
     node->value_len = value_len;
     node->dead = false;
@@ -105,7 +101,13 @@ SkipListNode *sl_insert(SkipList *sl, const char *key, size_t key_length,
   if (new_node == NULL)
     return NULL;
 
-  new_node->key = key;
+  char *key_clone = (char *)arena_allocate(sl->allocator, key_length + 1);
+  if (key_clone == NULL)
+    return NULL;
+  memcpy(key_clone, key, key_length);
+  key_clone[key_length] = '\0';
+
+  new_node->key = key_clone;
   new_node->key_length = key_length;
   new_node->value_ptr = value_ptr;
   new_node->value_len = value_len;
