@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 TEST(SkipDBTests, TestInsertAndSearch) {
-  skipdb *db;
+  skipdb *db = NULL;
   skipdb_open("<memory>", &db);
 
   skipdb_set(db, "foo", "bar", 0);
@@ -40,7 +40,7 @@ TEST(SkipDBTests, TestInsertExpiry) {
 }
 
 TEST(SkipDBTests, TestSearchOfNonExistentValue) {
-  skipdb *db;
+  skipdb *db = NULL;
   skipdb_open("<memory>", &db);
 
   char *result = skipdb_get(db, "foo");
@@ -53,7 +53,7 @@ TEST(SkipDBTests, TestSearchOfNonExistentValue) {
 }
 
 TEST(SkipDBTests, TestDeletion) {
-  skipdb *db;
+  skipdb *db = NULL;
   skipdb_open("<memory>", &db);
 
   skipdb_set(db, "foo", "bar", 0);
@@ -70,7 +70,7 @@ TEST(SkipDBTests, TestDeletion) {
 }
 
 TEST(SkipDBTests, TestDeletionOfNonExistentValue) {
-  skipdb *db;
+  skipdb *db = NULL;
   skipdb_open("<memory>", &db);
 
   skipdb_delete(db, "foo");

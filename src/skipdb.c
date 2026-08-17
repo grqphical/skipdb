@@ -33,12 +33,10 @@ void skipdb_open(const char *filepath, skipdb **db) {
     return;
   }
 
+  *db = malloc(sizeof(skipdb));
   if (*db == NULL) {
-    *db = malloc(sizeof(skipdb));
-    if (*db == NULL) {
-      skipdb_err = ALLOCATION_ERR;
-      return;
-    }
+    skipdb_err = ALLOCATION_ERR;
+    return;
   }
 
   (*db)->sl = sl_init();
@@ -69,10 +67,11 @@ void skipdb_set(skipdb *db, const char *key, const char *value,
   size_t key_length = strlen(key);
   size_t value_length = strlen(value);
 
-  char *value_clone = (char *)arena_allocate(db->value_allocator, value_length);
+  char *value_clone =
+      (char *)arena_allocate(db->value_allocator, value_length + 1);
   strcpy(value_clone, value);
 
-  sl_insert(db->sl, key, key_length, value_clone, value_length);
+  sl_insert(db->sl, key, key_length, value_clone, value_length + 1);
 
   ExpiryRecord *existing;
   HASH_FIND(hh, db->expiry_table, key, key_length, existing);
