@@ -24,7 +24,7 @@ include(FetchContent)
 FetchContent_Declare(
     skipdb
     GIT_REPOSITORY https://github.com/grqphical/skipdb.git
-    GIT_TAG v0.1.0
+    GIT_TAG v0.1.1
 )
 FetchContent_MakeAvailable(skipdb)
 
