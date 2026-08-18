@@ -17,7 +17,7 @@ typedef struct skipdb skipdb;
 SKIPDB_EXPORT bool skipdb_check_error(void);
 
 // Prints an error message related to the last error reported by the library
-SKIPDB_EXPORT void skipdb_print_error(void);
+SKIPDB_EXPORT const char *skipdb_get_error_message(void);
 
 // creates a new SkipDB instance, where filepath is the file to persist the
 // database to for an in-memory only database, set filepath to '<memory>'

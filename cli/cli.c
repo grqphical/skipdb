@@ -45,7 +45,8 @@ int main(int argc, char **argv) {
   if (argc == 1) {
     skipdb_open("<memory>", &db);
     if (skipdb_check_error()) {
-      skipdb_print_error();
+      fprintf(stderr, "error: %s\n", skipdb_get_error_message());
+      return -1;
     }
 
   } else if (argc == 2) {
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
 
     parse_and_run_command(db, line);
     if (skipdb_check_error()) {
-      skipdb_print_error();
+      fprintf(stderr, "error: %s\n", skipdb_get_error_message());
     }
 
     free(line);

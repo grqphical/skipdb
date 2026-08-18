@@ -15,15 +15,16 @@ enum skipdb_error_t skipdb_err = NONE;
 
 bool skipdb_check_error(void) { return skipdb_err != NONE; }
 
-void skipdb_print_error(void) {
-  switch (skipdb_err) {
+const char *skipdb_get_error_message(void) {
+  enum skipdb_error_t current_error = skipdb_err;
+  skipdb_err = NONE;
+  switch (current_error) {
   case NONE:
     break;
   case ALLOCATION_ERR:
-    fprintf(stderr, "memory allocation failure\n");
-    break;
+    return "memory allocation failure";
   }
-  skipdb_err = NONE;
+  return "";
 }
 
 void skipdb_open(const char *filepath, skipdb **db) {

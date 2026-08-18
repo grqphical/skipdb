@@ -40,21 +40,17 @@ int main(void) {
 
     skipdb_open("<memory>", db);
     if (skipdb_check_error()) {
-        skipdb_print_error();
+        printf("skipdb_open(): %s\n", skipdb_get_error_message());
         return -1;
     }
 
     const char *key = "hello";
     const char *value = "world";
     skipdb_set(db, key, value, 0);
-    if (skipdb_check_error()) {
-        skipdb_print_error();
-        return -1;
-    }
 
     const char* out = skipdb_get(db, key);
     if (skipdb_check_error()) {
-        skipdb_print_error();
+        printf("skipdb_get(): %s\n", skipdb_get_error_message());
         return -1;
     }
 
